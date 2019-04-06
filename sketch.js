@@ -1,23 +1,46 @@
 let values = [];
 let w = 3;
 let states = [];
-let osc = new p5.TriOsc();
-
+let osc;
+let sliderW;
+let sliderTime;
+let sleepTime;
+let div;
 
 function setup() {
-  // Start silent
+
+  div = createDiv("Test");
+
+  let button = createButton("Reset");
+  button.mousePressed(function() {
+    resetSketch();
+  });
+
+  // osc set
+  osc = new p5.TriOsc();
   osc.start();
   osc.amp(0);
 
-  createCanvas(windowWidth-20, windowHeight-200);
+  sliderW = createSlider(3, 50, 10);
+  sliderW.input(resetSketch);
+
+  sliderTime = createSlider(1, 500, 10);
+
+  createCanvas(windowWidth - 20, windowHeight - 200);
+  resetSketch();
+}
+
+function resetSketch() {
+  w = sliderW.value();
   values = new Array(floor(width / w));
-  h =  floor(height / values.length);
+
+  h = floor(height / values.length);
   for (let i = 0; i < values.length; i++) {
-    // values[i] = h*i;
-    values[i] = random(height);
+    values[i] = h*i;
+    //values[i] = random(height);
     states[i] = -1;
   }
-  // shuffle(values, true);
+  shuffle(values, true);
   quickSort(values, 0, values.length - 1);
 }
 
@@ -62,6 +85,8 @@ async function partition(arr, start, end) {
 }
 
 function draw() {
+  div.html(values.length + " items to sort, wait time is "+sliderTime.value() + " ms.");
+  sleepTime = sliderTime.value();
   background(0);
 
   for (let i = 0; i < values.length; i++) {
@@ -78,7 +103,7 @@ function draw() {
 }
 
 async function swap(arr, a, b) {
-  await sleep(0.25);
+  await sleep(sleepTime);
   playNote(a);
   let temp = arr[a];
   arr[a] = arr[b];
@@ -91,10 +116,10 @@ function sleep(ms) {
 
 function playNote(note) {
   // osc.freq(midiToFreq(note));
-  osc.freq(note*2.5);
+  osc.freq(note * 2);
   //
   // Fade it in
-  osc.amp(1,0.01);
-  osc.amp(0,2);
+  osc.amp(1, 0.2);
+  osc.amp(0, 0.5);
 
 }
